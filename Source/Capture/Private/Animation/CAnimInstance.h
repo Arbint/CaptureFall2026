@@ -20,4 +20,14 @@ public:
 	// Native update override point. It is usually a good idea to simply gather data in this step and 
 	// for the bulk of the work to be done in NativeThreadSafeUpdateAnimation.
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+
+private:
+	UPROPERTY()
+	class ACharacter* OwningCharacter;
+
+	UPROPERTY()
+	class UCharacterMovementComponent* OwningCharacterMovementComponent;
+
+	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess))
+	float Speed;
 };
