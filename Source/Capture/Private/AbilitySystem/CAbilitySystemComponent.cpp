@@ -23,7 +23,7 @@ void UCAbilitySystemComponent::GiveInitialAbilities()
 	
 	for (const TSubclassOf<UGameplayAbility>& InitialAbility : InitialAbilities)
 	{
-		GiveAbility(FGameplayAbilitySpec(InitialAbility, 1, -1));
+		GiveAbility(FGameplayAbilitySpec(InitialAbility, 1, 0));
 	}
 }
 
