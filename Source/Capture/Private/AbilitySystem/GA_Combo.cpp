@@ -102,6 +102,10 @@ void UGA_Combo::DoDamage(FGameplayEventData EventData)
 
 		FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(DamageEffect, GetAbilityLevel(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo()));
 
+		FGameplayEffectContextHandle EffectContextHandle = MakeEffectContext(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo());
+		EffectContextHandle.AddHitResult(HitResult);
+		EffectSpecHandle.Data->SetContext(EffectContextHandle);
+
 		ApplyGameplayEffectSpecToTarget(
 			GetCurrentAbilitySpecHandle(),
 			GetCurrentActorInfo(),
