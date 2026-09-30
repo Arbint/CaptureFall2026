@@ -4,6 +4,7 @@
 #include "Characters/CCharacter.h"
 #include "AbilitySystem/CAbilitySystemComponent.h"
 #include "AbilitySystem/CAttributeSet.h"
+#include "AbilitySystem/CAbilitySystemNativeTags.h"
 #include "Components/WidgetComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Capture/Capture.h"
@@ -25,6 +26,17 @@ ACCharacter::ACCharacter()
 	GetMesh()->SetCollisionResponseToChannel(ECC_CameraBoom, ECR_Ignore);
 }
 
+
+void ACCharacter::BindGASDelegates()
+{
+	if (bGASDelegateBound || !AbilitySystemComponent)
+		return;
+
+	bGASDelegateBound = true;
+
+	AbilitySystemComponent->RegisterGameplayTagEvent(TAG_STAT_DEAD).AddUObject(this, &ACCharacter::DeathTagUpdated);
+}
+
 void ACCharacter::ServerSideInit()
 {
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
@@ -42,6 +54,7 @@ void ACCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	ConfigureOverheadWidgetComponent();
+	BindGASDelegates();
 }
 
 // Called every frame
@@ -61,6 +74,16 @@ void ACCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 UAbilitySystemComponent* ACCharacter::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
+}
+
+void ACCharacter::StartDeathSequence()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Start Death Sequence"))
+}
+
+void ACCharacter::Respawn()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Respawn"))
 }
 
 void ACCharacter::ConfigureOverheadWidgetComponent()
@@ -95,5 +118,18 @@ void ACCharacter::PossessedBy(AController* NewController)
 	if (NewController && !NewController->IsPlayerController())
 	{
 		ServerSideInit();
+	}
+}
+
+
+void ACCharacter::DeathTagUpdated(const FGameplayTag Tag, int32 Count)
+{
+	if (Count != 0)
+	{
+				
+	}
+	else
+	{
+		
 	}
 }
