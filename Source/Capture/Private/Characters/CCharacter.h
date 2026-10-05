@@ -6,10 +6,11 @@
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
 #include "GameplayTagContainer.h"
+#include "GenericTeamAgentInterface.h"
 #include "CCharacter.generated.h"
 
 UCLASS()
-class ACCharacter : public ACharacter, public IAbilitySystemInterface
+class ACCharacter : public ACharacter, public IAbilitySystemInterface, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
@@ -59,6 +60,23 @@ private:
 private:
 	void StartDeathSequence();
 	void Respawn();
+	bool IsDead() const;
+
+	void SetRagdollEnabled(bool bIsEnabled);
+
+	FTransform SkeletalMeshRelativeTransform;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Death")
+	UAnimMontage* DeathMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Death")
+	float DeathAnimationTimeOffset = -1.f;
+
+	void PlayDeathMontage();
+
+	FTimerHandle DeathAnimationTimerHandle;
+
+	void DeathAnimationFinished();
 
 //---------------------------------------------------//
 //                        Widget                     //
@@ -68,4 +86,18 @@ private:
 	class UWidgetComponent* OverheadWidgetComponent;
 	
 	void ConfigureOverheadWidgetComponent();
+
+	//---------------------------------------//
+	//            TEAM                       //
+	//---------------------------------------//
+public:
+	/** Assigns Team Agent to given TeamID */
+	virtual void SetGenericTeamId(const FGenericTeamId& NewTeamID);
+	
+	/** Retrieve team identifier in form of FGenericTeamId */
+	virtual FGenericTeamId GetGenericTeamId() const;
+
+private:
+	UPROPERTY(Replicated)
+	FGenericTeamId TeamId;
 };

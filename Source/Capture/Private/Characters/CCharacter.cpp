@@ -9,11 +9,12 @@
 #include "Components/CapsuleComponent.h"
 #include "Capture/Capture.h"
 #include "Widgets/OverheadStatusGauge.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 ACCharacter::ACCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	AbilitySystemComponent = CreateDefaultSubobject<UCAbilitySystemComponent>("AbilitySystemComponent");
@@ -79,11 +80,74 @@ UAbilitySystemComponent* ACCharacter::GetAbilitySystemComponent() const
 void ACCharacter::StartDeathSequence()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Start Death Sequence"))
+		PlayDeathMontage();
+
+	GetCharacterMovement()->StopMovementImmediately();
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	APlayerController* PlayerController = GetController<APlayerController>();
+	if (PlayerController)
+	{
+		DisableInput(PlayerController);
+	}
 }
 
 void ACCharacter::Respawn()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Respawn"))
+	SetRagdollEnabled(false);
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+	APlayerController* PlayerController = GetController<APlayerController>();
+	if (PlayerController)
+	{
+		EnableInput(PlayerController);
+	}
+
+	// doing both on server and client.
+	CAttributeSet->SetHealth(CAttributeSet->GetMaxHealth());
+	StopAnimMontage(DeathMontage);
+}
+
+bool ACCharacter::IsDead() const
+{
+	return AbilitySystemComponent->HasMatchingGameplayTag(TAG_STAT_DEAD);
+}
+
+void ACCharacter::PlayDeathMontage()
+{
+	if (DeathMontage)
+	{
+		float DeathAnimationDuration = PlayAnimMontage(DeathMontage);
+		GetWorldTimerManager().SetTimer(DeathAnimationTimerHandle, this, &ACCharacter::DeathAnimationFinished, DeathAnimationDuration + DeathAnimationTimeOffset);
+	}
+}
+
+
+void ACCharacter::SetRagdollEnabled(bool bIsEnabled)
+{
+	if (bIsEnabled)
+	{
+		SkeletalMeshRelativeTransform = GetMesh()->GetRelativeTransform();
+		GetMesh()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		GetMesh()->SetSimulatePhysics(true);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	}
+	else
+	{
+		GetMesh()->SetSimulatePhysics(false);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		GetMesh()->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		GetMesh()->SetRelativeTransform(SkeletalMeshRelativeTransform);
+	}
+}
+
+void ACCharacter::DeathAnimationFinished()
+{
+	if(IsDead())
+		SetRagdollEnabled(true);
 }
 
 void ACCharacter::ConfigureOverheadWidgetComponent()
@@ -107,6 +171,16 @@ void ACCharacter::ConfigureOverheadWidgetComponent()
 	OverheadWidgetComponent->SetHiddenInGame(false);
 }
 
+void ACCharacter::SetGenericTeamId(const FGenericTeamId& NewTeamID)
+{
+	TeamId = NewTeamID;
+}
+
+FGenericTeamId ACCharacter::GetGenericTeamId() const
+{
+	return TeamId;
+}
+
 bool ACCharacter::IsLocallyControlledByPlayer() const
 {
 	return IsLocallyControlled() && GetController()->IsPlayerController();
@@ -126,10 +200,10 @@ void ACCharacter::DeathTagUpdated(const FGameplayTag Tag, int32 Count)
 {
 	if (Count != 0)
 	{
-				
+		StartDeathSequence();
 	}
 	else
 	{
-		
+		Respawn();
 	}
 }
