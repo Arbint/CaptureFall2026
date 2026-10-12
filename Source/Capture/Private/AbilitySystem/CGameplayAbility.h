@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
+#include "GenericTeamAgentInterface.h"
 #include "CGameplayAbility.generated.h"
 
 /**
@@ -16,6 +17,7 @@ class UCGameplayAbility : public UGameplayAbility
 protected:	
 	TArray<FHitResult> GetHitResultsFromSweepLocationTargetData(const FGameplayAbilityTargetDataHandle& TargetDataHandle,
 		float SphereSweepRadius = 30.f,
+		ETeamAttitude::Type TargetTeamAttitute = ETeamAttitude::Hostile,
 		bool bDrawDebug = false,
 		bool bIgnoreSelf = true
 	) const;

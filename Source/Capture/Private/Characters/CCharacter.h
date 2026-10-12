@@ -15,6 +15,7 @@ class ACCharacter : public ACharacter, public IAbilitySystemInterface, public IG
 	GENERATED_BODY()
 
 public:
+	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const override;
 	// Sets default values for this character's properties
 	ACCharacter();
 
@@ -57,10 +58,12 @@ private:
 //---------------------------------------------------//
 //                  Death & Respawn                  //
 //---------------------------------------------------//
+public:
+	bool IsDead() const;
+
 private:
 	void StartDeathSequence();
 	void Respawn();
-	bool IsDead() const;
 
 	void SetRagdollEnabled(bool bIsEnabled);
 
@@ -100,4 +103,13 @@ public:
 private:
 	UPROPERTY(Replicated)
 	FGenericTeamId TeamId;
+
+	//---------------------------------------//
+	//               AI Perception           //
+	//---------------------------------------//
+private:
+	UPROPERTY()
+	class UAIPerceptionStimuliSourceComponent* AIPerceptionStimuliSourceComponent;
+
+	void SetAIPerceptionStimuliSourceEnabled(bool bIsStimuliSourceEnabled);
 };
