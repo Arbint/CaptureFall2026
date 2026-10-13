@@ -19,6 +19,8 @@ public:
 	virtual void OnPossess(APawn* NewPawn) override;
 	virtual void BeginPlay() override;
 
+	FORCEINLINE AActor* GetCurrentTarget() const { return CurrentTarget;}
+
 private:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Perception")
 	class UAIPerceptionComponent* AIPerceptionComponent;
@@ -29,6 +31,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Behavior")
 	class UBehaviorTree* BehaviorTree;
 
+	UPROPERTY(EditDefaultsOnly, Category = "State Tree")
+	class UStateTreeAIComponent* StateTreeAIComponent;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Behavior")
 	FName BlackboardTargetKeyName = "Target";
 
@@ -37,7 +42,6 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Behavior")
 	FName BlackboardLastSeenLocationKeyName = "LastSeenLocation";
-
 
 	UFUNCTION()
 	void TargetPerceptionUpdated(AActor* TargetActor, FAIStimulus Stimulus);
@@ -51,4 +55,7 @@ private:
 	AActor* GetNextPerceivedActor() const;
 
 	void ForgetActorIfDead(AActor* ActorToForget);
+
+	UPROPERTY()
+	AActor* CurrentTarget;
 };
