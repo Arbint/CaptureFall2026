@@ -38,8 +38,10 @@ EStateTreeRunStatus FSTT_RotateToFaceActor::Tick(FStateTreeExecutionContext& Con
 	
 	if (FocalPoint != FAISystem::InvalidLocation)
 	{
-		float Angle =  PawnDir.CosineAngle2D(FocalPoint - InstanceData.AIController->GetPawn()->GetActorLocation());
-		if (Angle <= InstanceData.Precision && InstanceData.bShouldSuccess)
+		// CosineAngle2D returns 1 when facing the target and -1 when facing away
+		const float AngleCos = PawnDir.CosineAngle2D(FocalPoint - InstanceData.AIController->GetPawn()->GetActorLocation());
+		const float PrecisionCos = FMath::Cos(FMath::DegreesToRadians(InstanceData.PrecisionDegrees));
+		if (AngleCos >= PrecisionCos && InstanceData.bShouldSuccess)
 		{
 			return EStateTreeRunStatus::Succeeded;
 		}

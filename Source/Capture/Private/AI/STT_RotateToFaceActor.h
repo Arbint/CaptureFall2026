@@ -17,8 +17,9 @@ struct FStateTreeRotateToFaceActoInstanceData
 	UPROPERTY(EditAnywhere, Category = Context)
 	AAIController* AIController = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = Parameter)
-	float Precision = 1.f;
+	// how many degrees off the target direction still counts as facing it
+	UPROPERTY(EditAnywhere, Category = Parameter, meta = (ClampMin = "0.0", ClampMax = "180.0", UIMin = "0.0", UIMax = "180.0"))
+	float PrecisionDegrees = 10.f;
 
 	UPROPERTY(EditAnywhere, Category = Parameter)
 	AActor* TargetActor;
