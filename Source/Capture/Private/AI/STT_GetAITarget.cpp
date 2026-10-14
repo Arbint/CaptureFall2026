@@ -10,6 +10,7 @@ EStateTreeRunStatus USTT_GetAITarget::EnterState(FStateTreeExecutionContext& Con
 	FStateTreeDataView DataView = Context.GetContextDataByName("AIController");
 	if (const ACAIController* AIController = DataView.GetPtr<ACAIController>())
 	{
-		AIController->GetCurrentTarget();
 	}
+
+	return EStateTreeRunStatus::Succeeded;
 }

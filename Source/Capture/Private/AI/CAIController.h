@@ -19,8 +19,6 @@ public:
 	virtual void OnPossess(APawn* NewPawn) override;
 	virtual void BeginPlay() override;
 
-	FORCEINLINE AActor* GetCurrentTarget() const { return CurrentTarget;}
-
 private:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Perception")
 	class UAIPerceptionComponent* AIPerceptionComponent;
@@ -56,6 +54,6 @@ private:
 
 	void ForgetActorIfDead(AActor* ActorToForget);
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
 	AActor* CurrentTarget;
 };

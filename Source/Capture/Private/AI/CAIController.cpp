@@ -53,6 +53,7 @@ void ACAIController::BeginPlay()
 	if (BehaviorTree)
 	{
 		RunBehaviorTree(BehaviorTree);
+		StateTreeAIComponent->Deactivate();
 	}
 
 	AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &ACAIController::TargetPerceptionUpdated);
