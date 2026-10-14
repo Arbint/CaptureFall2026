@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-//#pragma once
+#pragma once
 
 #include "CoreMinimal.h"
-#include "Tasks/StateTreeAITask.h"
+#include "StateTreeTaskBase.h"
 #include "AbilitySystem/CAbilityInputID.h"
 #include "STT_PressAbilityInput.generated.h"
 
@@ -25,8 +25,8 @@ struct FStateTreePressAbilityInputInstanceData
 /**
  * 
  */
-USTRUCT(meta = (DisplayName = "Rotate To Face Target", Category = "AI|Action"))
-struct FSTT_PressAbilityInput : public FStateTreeAIActionTaskBase
+USTRUCT(meta = (DisplayName = "Press Ability Input ID"))
+struct FSTT_PressAbilityInput : public FStateTreeTaskCommonBase
 {
 	GENERATED_BODY()
 	using FInstanceDataType = FStateTreePressAbilityInputInstanceData;
@@ -35,3 +35,5 @@ struct FSTT_PressAbilityInput : public FStateTreeAIActionTaskBase
 protected:
 	virtual EStateTreeRunStatus EnterState(FStateTreeExecutionContext& Context, const FStateTreeTransitionResult& Transition) const override;
 };
+
+

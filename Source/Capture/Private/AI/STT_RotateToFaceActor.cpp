@@ -39,7 +39,7 @@ EStateTreeRunStatus FSTT_RotateToFaceActor::Tick(FStateTreeExecutionContext& Con
 	if (FocalPoint != FAISystem::InvalidLocation)
 	{
 		float Angle =  PawnDir.CosineAngle2D(FocalPoint - InstanceData.AIController->GetPawn()->GetActorLocation());
-		if (Angle <= InstanceData.Precision)
+		if (Angle <= InstanceData.Precision && InstanceData.bShouldSuccess)
 		{
 			return EStateTreeRunStatus::Succeeded;
 		}

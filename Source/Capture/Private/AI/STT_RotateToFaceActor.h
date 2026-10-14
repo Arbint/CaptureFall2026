@@ -22,6 +22,9 @@ struct FStateTreeRotateToFaceActoInstanceData
 
 	UPROPERTY(EditAnywhere, Category = Parameter)
 	AActor* TargetActor;
+
+	UPROPERTY(EditAnywhere, Category = Parameter)
+	bool bShouldSuccess = true;
 };
 
 /**
