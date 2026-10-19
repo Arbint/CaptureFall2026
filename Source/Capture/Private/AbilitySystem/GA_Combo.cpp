@@ -24,6 +24,8 @@ void UGA_Combo::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const F
 		return;
 	}
 
+	NextComboName = NAME_None;
+
 	if (HasAuthorityOrPredictionKey(ActorInfo, &ActivationInfo))
 	{
 		UAbilityTask_PlayMontageAndWait* PlayMontageAndWaitTask = 
