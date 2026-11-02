@@ -97,7 +97,7 @@ void UGA_Combo::HandleComboInputPress(float TimeWaited)
 void UGA_Combo::DoDamage(FGameplayEventData EventData)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Trying to do damage"))
-	TArray<FHitResult> HitResults = GetHitResultsFromSweepLocationTargetData(EventData.TargetData, 50.f);
+	TArray<FHitResult> HitResults = GetHitResultsFromSweepLocationTargetData(EventData.TargetData, AttachDetectionSweepRadius, ETeamAttitude::Hostile, bShouldDrawDebug);
 	for (const FHitResult& HitResult : HitResults)
 	{
 		TSubclassOf<UGameplayEffect> DamageEffect = GetDamageEffectForCurrentCombo();

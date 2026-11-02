@@ -16,6 +16,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 
+
 void ACCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -35,7 +36,9 @@ ACCharacter::ACCharacter()
 	OverheadWidgetComponent->SetupAttachment(GetRootComponent());
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_CameraBoom, ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Target, ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECC_CameraBoom, ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Target, ECR_Ignore);
 
 	AIPerceptionStimuliSourceComponent = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>("AI Perception Stimuli Source Component");
 }
@@ -50,6 +53,7 @@ void ACCharacter::BindGASDelegates()
 
 	AbilitySystemComponent->RegisterGameplayTagEvent(TAG_STAT_DEAD).AddUObject(this, &ACCharacter::DeathTagUpdated);
 	AbilitySystemComponent->RegisterGameplayTagEvent(TAG_STAT_AIMING).AddUObject(this, &ACCharacter::AimTagUpdated);
+	AbilitySystemComponent->RegisterGameplayTagEvent(TAG_STAT_STUN).AddUObject(this, &ACCharacter::StunTagUpdated);
 }
 
 void ACCharacter::ServerSideInit()
@@ -87,6 +91,22 @@ void ACCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 }
 
+void ACCharacter::SetInputEnabledFromPlayerController(bool bNewInputEnabled)
+{
+	APlayerController* PlayerController = GetController<APlayerController>();
+	if (PlayerController)
+	{
+		if (bNewInputEnabled)
+		{
+			EnableInput(PlayerController);
+		}
+		else
+		{
+			DisableInput(PlayerController);
+		}
+	}
+}
+
 UAbilitySystemComponent* ACCharacter::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
@@ -95,33 +115,30 @@ UAbilitySystemComponent* ACCharacter::GetAbilitySystemComponent() const
 void ACCharacter::StartDeathSequence()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Start Death Sequence"))
-	PlayDeathMontage();
+		PlayDeathMontage();
 
 	SetAIPerceptionStimuliSourceEnabled(false);
 	GetCharacterMovement()->StopMovementImmediately();
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	APlayerController* PlayerController = GetController<APlayerController>();
-	if (PlayerController)
+	SetInputEnabledFromPlayerController(false);
+	
+	if (AbilitySystemComponent)
 	{
-		DisableInput(PlayerController);
+		AbilitySystemComponent->CancelAllAbilities();
 	}
 }
 
 void ACCharacter::Respawn()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Respawn"))
-	SetAIPerceptionStimuliSourceEnabled(true);
+		SetAIPerceptionStimuliSourceEnabled(true);
 	SetRagdollEnabled(false);
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
-	APlayerController* PlayerController = GetController<APlayerController>();
-	if (PlayerController)
-	{
-		EnableInput(PlayerController);
-	}
+	SetInputEnabledFromPlayerController(true);
 
 	// doing both on server and client.
 	CAttributeSet->SetHealth(CAttributeSet->GetMaxHealth());
@@ -167,7 +184,7 @@ void ACCharacter::SetRagdollEnabled(bool bIsEnabled)
 
 void ACCharacter::DeathAnimationFinished()
 {
-	if(IsDead())
+	if (IsDead())
 		SetRagdollEnabled(true);
 }
 
@@ -235,11 +252,37 @@ void ACCharacter::AimTagUpdated(const FGameplayTag Tag, int32 Count)
 	SetIsAiming(Count != 0);
 }
 
+void ACCharacter::StunTagUpdated(const FGameplayTag Tag, int32 Count)
+{
+	if (IsDead())
+	{
+		return;
+	}
+
+	bool bIsStun = Count != 0;
+	if (bIsStun)
+	{
+		PlayAnimMontage(StunMontage);
+	}
+	else
+	{
+		StopAnimMontage(StunMontage);
+	}
+
+	SetInputEnabledFromPlayerController(!bIsStun);
+}
+
 
 void ACCharacter::SetIsAiming(bool bIsAiming)
 {
 	bUseControllerRotationYaw = bIsAiming;
 	GetCharacterMovement()->bOrientRotationToMovement = !bIsAiming;
+	OnAimStatChanged(bIsAiming);
+}
+
+void ACCharacter::OnAimStatChanged(bool bNewIsAiming)
+{
+	// override in child class
 }
 
 void ACCharacter::SetAIPerceptionStimuliSourceEnabled(bool bIsStimuliSourceEnabled)
