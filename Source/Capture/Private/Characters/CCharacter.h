@@ -7,6 +7,7 @@
 #include "AbilitySystemInterface.h"
 #include "GameplayTagContainer.h"
 #include "GenericTeamAgentInterface.h"
+#include "AbilitySystem/CAbilityInputID.h"
 #include "CCharacter.generated.h"
 
 UCLASS()
@@ -24,6 +25,8 @@ public:
 	bool IsLocallyControlledByPlayer() const;
 
 	virtual void PossessedBy(AController* NewController) override;
+
+	const TMap<ECAbilityInputID, TSubclassOf<class UGameplayAbility>>& GetInitialAbilities() const;
 
 protected:
 	// Called when the game starts or when spawned

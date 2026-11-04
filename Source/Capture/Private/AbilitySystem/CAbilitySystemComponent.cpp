@@ -26,7 +26,7 @@ void UCAbilitySystemComponent::ApplyInitialEffects()
 	}
 }
 
-void UCAbilitySystemComponent::GiveInitialAbilities()
+void UCAbilitySystemComponent::GiveAbilities()
 {
 	if (!GetOwner() || !GetOwner()->HasAuthority())
 		return;
@@ -35,6 +35,16 @@ void UCAbilitySystemComponent::GiveInitialAbilities()
 	{
 		GiveAbility(FGameplayAbilitySpec(InitialAbilityPair.Value, 1, (int32)InitialAbilityPair.Key));
 	}
+
+	for (const TPair<ECAbilityInputID,TSubclassOf<UGameplayAbility>>& BasicAbilityPair : BasicAbilities)
+	{
+		GiveAbility(FGameplayAbilitySpec(BasicAbilityPair.Value, 1, (int32)BasicAbilityPair.Key));
+	}
+}
+
+const TMap<ECAbilityInputID, TSubclassOf<UGameplayAbility>>& UCAbilitySystemComponent::GetInitialAbilities() const
+{
+	return InitialAbilities;
 }
 
 void UCAbilitySystemComponent::HealthChanged(const struct FOnAttributeChangeData& ChangeData)

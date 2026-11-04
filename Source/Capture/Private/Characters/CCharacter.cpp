@@ -60,7 +60,7 @@ void ACCharacter::ServerSideInit()
 {
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 	AbilitySystemComponent->ApplyInitialEffects();
-	AbilitySystemComponent->GiveInitialAbilities();
+	AbilitySystemComponent->GiveAbilities();
 }
 
 void ACCharacter::ClientSideInit()
@@ -231,6 +231,11 @@ void ACCharacter::PossessedBy(AController* NewController)
 	{
 		ServerSideInit();
 	}
+}
+
+const TMap<ECAbilityInputID, TSubclassOf<class UGameplayAbility>>& ACCharacter::GetInitialAbilities() const
+{
+	return AbilitySystemComponent->GetInitialAbilities();
 }
 
 
