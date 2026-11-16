@@ -3,6 +3,16 @@
 
 #include "Framework/CGameInstance.h"
 
+void UCGameInstance::RequestCreateNewSession()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Requesting to create new session"))
+}
+
+void UCGameInstance::TryFindAndJoinSession()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Requesting to find and join session"))
+}
+
 bool UCGameInstance::IsLoggedIn() const
 {
 	IOnlineIdentityPtr IdentityInterface = GetIdentityInterface();

@@ -24,6 +24,12 @@ private:
 
 	UPROPERTY()
 	class UCGameInstance* CGameInstance;
+
+	UPROPERTY(meta=(BindWidget))
+	class UMatchMakingWidget* MatchMakingWidget;
+
+	void SwitchToMatchMakingWidget();
+
 	//--------------------------------//
 	//            Login               //
 	//--------------------------------//

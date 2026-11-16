@@ -49,6 +49,10 @@ private:
 	//               Game Client               // 
 	//-----------------------------------------//
 public:
+	void RequestCreateNewSession();
+
+	void TryFindAndJoinSession();
+
 	FOnAuthLoginCompletedDelegate OnAuthLoginCompletedDelegate;
 	bool IsLoggedIn() const;
 	void ClientAuthPortalLogin();

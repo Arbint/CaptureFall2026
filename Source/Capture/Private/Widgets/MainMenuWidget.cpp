@@ -2,6 +2,7 @@
 
 
 #include "Widgets/MainMenuWidget.h"
+#include "Widgets/MatchMakingWidget.h"
 #include "Framework/CGameInstance.h"
 #include "Components/Button.h"
 #include "Components/WidgetSwitcher.h"
@@ -13,6 +14,10 @@ void UMainMenuWidget::NativeConstruct()
 	if (CGameInstance)
 	{
 		CGameInstance->OnAuthLoginCompletedDelegate.AddUObject(this, &UMainMenuWidget::LoginCompleted);
+		if (CGameInstance->IsLoggedIn())
+		{
+			SwitchToMatchMakingWidget();
+		}
 	}
 
 	LoginBtn->OnClicked.AddDynamic(this, &UMainMenuWidget::LoginBtnClicked);
@@ -31,6 +36,12 @@ FReply UMainMenuWidget::NativeOnFocusReceived(const FGeometry& InGeometry, const
 	return Super::NativeOnFocusReceived(InGeometry, InFocusEvent);
 }
 
+void UMainMenuWidget::SwitchToMatchMakingWidget()
+{
+	MainSwitcher->SetActiveWidget(MatchMakingWidget);
+	MatchMakingWidget->SetKeyboardFocus();
+}
+
 void UMainMenuWidget::LoginBtnClicked()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Logging in"))
@@ -45,6 +56,7 @@ void UMainMenuWidget::LoginCompleted(bool bWasSuccessful, const FString& PlayerN
 	if (bWasSuccessful)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Log in Successful!"))
+		SwitchToMatchMakingWidget();
 	}
 	else
 	{
