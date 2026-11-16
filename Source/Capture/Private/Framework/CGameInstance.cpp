@@ -24,8 +24,14 @@ bool UCGameInstance::IsLoggedIn() const
 	return false;
 }
 
+bool UCGameInstance::IsLoggingIn() const
+{
+	return bIsLoggingIn;
+}
+
 void UCGameInstance::ClientAuthPortalLogin()
 {
+	bIsLoggingIn = true;
 	IOnlineIdentityPtr IdentityInterface = GetIdentityInterface();
 	if (IdentityInterface)
 	{
@@ -33,6 +39,7 @@ void UCGameInstance::ClientAuthPortalLogin()
 		IdentityInterface->OnLoginCompleteDelegates->AddUObject(this, &UCGameInstance::ClientLoginCompleted);
 		if (!IdentityInterface->Login(0, FOnlineAccountCredentials("accountportal", "", "")))
 		{
+			bIsLoggingIn = false;
 			UE_LOG(LogTemp, Warning, TEXT("---------------------------"))
 			UE_LOG(LogTemp, Warning, TEXT("Login in failed right away"))
 			UE_LOG(LogTemp, Warning, TEXT("---------------------------"))
@@ -40,6 +47,7 @@ void UCGameInstance::ClientAuthPortalLogin()
 	}
 	else
 	{
+		bIsLoggingIn = false;
 		UE_LOG(LogTemp, Warning, TEXT("---------------------------"))
 		UE_LOG(LogTemp, Warning, TEXT("Login failed due to not finding identity interface"))
 		UE_LOG(LogTemp, Warning, TEXT("---------------------------"))
@@ -48,7 +56,7 @@ void UCGameInstance::ClientAuthPortalLogin()
 
 void UCGameInstance::ClientLoginCompleted(int LocalPlayerNumber, bool bWasSuccessful, const FUniqueNetId& UserId, const FString& ErrorMsg)
 {
-
+	bIsLoggingIn = false;
 	IOnlineIdentityPtr IdentityInterface = GetIdentityInterface();
 	if (IdentityInterface)
 	{

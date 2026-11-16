@@ -47,6 +47,12 @@ void UMainMenuWidget::LoginBtnClicked()
 	UE_LOG(LogTemp, Warning, TEXT("Logging in"))
 	if (CGameInstance)
 	{
+		if (CGameInstance->IsLoggedIn() || CGameInstance->IsLoggingIn())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Log in not allowed at this time, already logged in or loggin in"))
+			return;
+		}
+
 		CGameInstance->ClientAuthPortalLogin();
 	}
 }

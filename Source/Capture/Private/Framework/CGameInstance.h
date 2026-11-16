@@ -55,9 +55,13 @@ public:
 
 	FOnAuthLoginCompletedDelegate OnAuthLoginCompletedDelegate;
 	bool IsLoggedIn() const;
+	bool IsLoggingIn() const;
+
 	void ClientAuthPortalLogin();
 private:
 	void ClientLoginCompleted(int LocalPlayerNumber, bool bWasSuccessful, const FUniqueNetId& UserId, const FString& ErrorMsg);
+
+	bool bIsLoggingIn = false;
 
 	//-----------------------------------------//
 	//          Online Interfaces              // 
