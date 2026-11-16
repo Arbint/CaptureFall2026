@@ -14,7 +14,7 @@ struct FStateTreePressAbilityInputInstanceData
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, Category = "Parameter")
-	class UAbilitySystemComponent* AbilitySystemComponent;
+	class UAbilitySystemComponent* AbilitySystemComponent = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Parameter")
 	ECAbilityInputID InputToPress;

@@ -10,7 +10,7 @@ public class Capture : ModuleRules
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", 
 			"GameplayAbilities", "GameplayTasks", "GameplayTags", "AIModule", "UMG", "Slate", "SlateCore", "NavigationSystem",
-			"StateTreeModule", "GameplayStateTreeModule"
+			"StateTreeModule", "GameplayStateTreeModule", "OnlineSubsystem", "OnlineSubsystemEOS", "Networking", "HTTP", "Json"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
