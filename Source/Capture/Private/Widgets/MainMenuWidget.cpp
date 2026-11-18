@@ -3,6 +3,7 @@
 
 #include "Widgets/MainMenuWidget.h"
 #include "Widgets/MatchMakingWidget.h"
+#include "Widgets/WaitingWidget.h"
 #include "Framework/CGameInstance.h"
 #include "Components/Button.h"
 #include "Components/WidgetSwitcher.h"
@@ -21,6 +22,9 @@ void UMainMenuWidget::NativeConstruct()
 	}
 
 	LoginBtn->OnClicked.AddDynamic(this, &UMainMenuWidget::LoginBtnClicked);
+
+	MatchMakingWidget->GetFindAndJoinSessionBtnClickEvent().AddDynamic(this, &UMainMenuWidget::WaitForFindAndJoinSessison);
+	MatchMakingWidget->GetCreateNewSessionBtnClickEvent().AddDynamic(this, &UMainMenuWidget::WaitForNewSessionCreate);
 }
 
 FReply UMainMenuWidget::NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent)
@@ -54,6 +58,8 @@ void UMainMenuWidget::LoginBtnClicked()
 		}
 
 		CGameInstance->ClientAuthPortalLogin();
+		MainSwitcher->SetActiveWidget(WaitingWidget);
+		WaitingWidget->ConfigureWaiting("Logging In", false);
 	}
 }
 
@@ -68,4 +74,20 @@ void UMainMenuWidget::LoginCompleted(bool bWasSuccessful, const FString& PlayerN
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Login Failed"))
 	}
+}
+
+void UMainMenuWidget::WaitForNewSessionCreate()
+{
+	MainSwitcher->SetActiveWidget(WaitingWidget);
+	WaitingWidget->ConfigureWaiting("Creating Game", true);
+	WaitingWidget->ClearAndGetButtonClickEvent().AddDynamic(this, &UMainMenuWidget::SwitchToMatchMakingWidget);
+	WaitingWidget->SetKeyboardFocus();
+}
+
+void UMainMenuWidget::WaitForFindAndJoinSessison()
+{
+	MainSwitcher->SetActiveWidget(WaitingWidget);
+	WaitingWidget->ConfigureWaiting("Finding Game", true);
+	WaitingWidget->ClearAndGetButtonClickEvent().AddDynamic(this, &UMainMenuWidget::SwitchToMatchMakingWidget);
+	WaitingWidget->SetKeyboardFocus();
 }

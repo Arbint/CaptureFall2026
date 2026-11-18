@@ -5,13 +5,13 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/Button.h"
-#include "MyUserWidget.generated.h"
+#include "WaitingWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class UMyUserWidget : public UUserWidget
+class UWaitingWidget : public UUserWidget
 {
 	GENERATED_BODY()
 public:

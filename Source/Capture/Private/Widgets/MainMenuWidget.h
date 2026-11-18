@@ -22,6 +22,9 @@ private:
 	UPROPERTY(meta=(BindWidget))
 	class UWidgetSwitcher* MainSwitcher;
 
+	UPROPERTY(meta=(BindWidget))
+	class UWaitingWidget* WaitingWidget;
+
 	UPROPERTY()
 	class UCGameInstance* CGameInstance;
 
@@ -42,4 +45,10 @@ private:
 
 	UFUNCTION()
 	void LoginCompleted(bool bWasSuccessful, const FString& PlayerNickname, const FString& ErrorMsg);
+
+	UFUNCTION()
+	void WaitForNewSessionCreate();
+
+	UFUNCTION()
+	void WaitForFindAndJoinSessison();
 };

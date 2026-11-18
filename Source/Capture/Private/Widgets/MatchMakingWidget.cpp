@@ -15,6 +15,16 @@ void UMatchMakingWidget::NativeConstruct()
 	FindAndJoinSessionBtn->OnClicked.AddDynamic(this, &UMatchMakingWidget::FindAndJoinSesionBtnClicked);
 }
 
+FOnButtonClickedEvent& UMatchMakingWidget::GetFindAndJoinSessionBtnClickEvent()
+{
+	return FindAndJoinSessionBtn->OnClicked;
+}
+
+FOnButtonClickedEvent& UMatchMakingWidget::GetCreateNewSessionBtnClickEvent()
+{
+	return CreateNewSessionBtn->OnClicked;
+}
+
 void UMatchMakingWidget::CreateNewSessionBtnClicked()
 {
 	if (CGameInstance)
