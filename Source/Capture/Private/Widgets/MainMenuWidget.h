@@ -31,6 +31,7 @@ private:
 	UPROPERTY(meta=(BindWidget))
 	class UMatchMakingWidget* MatchMakingWidget;
 
+	UFUNCTION()
 	void SwitchToMatchMakingWidget();
 
 	//--------------------------------//

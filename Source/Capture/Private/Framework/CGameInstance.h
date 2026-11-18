@@ -10,6 +10,9 @@
 #include "OnlineSessionSettings.h"
 #include "OnlineSubsystem.h"
 
+#include "Interfaces/IHttpRequest.h"
+#include "Interfaces/IHttpResponse.h"
+
 #include "CGameInstance.generated.h"
 
 
@@ -62,6 +65,16 @@ private:
 	void ClientLoginCompleted(int LocalPlayerNumber, bool bWasSuccessful, const FUniqueNetId& UserId, const FString& ErrorMsg);
 
 	bool bIsLoggingIn = false;
+
+	FString GetCoordinatorURL() const;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Coordinator")
+	FString DEFAULT_COORDINATOR_URL = "127.0.0.1";
+
+	FName COORDINATOR_URL_KEY = "COORDINATOR_URL";
+
+	void SessionCreationRequestCompleted(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bProcessedSuccessfully, FGuid SessionSearchId);
+
 
 	//-----------------------------------------//
 	//          Online Interfaces              // 

@@ -2,10 +2,67 @@
 
 
 #include "Framework/CGameInstance.h"
+#include "HttpModule.h"
 
 void UCGameInstance::RequestCreateNewSession()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Requesting to create new session"))
+	FHttpRequestRef Request = FHttpModule::Get().CreateRequest();
+	FGuid SessionSearchId = FGuid::NewGuid();
+	FString CoordinatorURL = GetCoordinatorURL();
+	UE_LOG(LogTemp, Warning, TEXT("Coordinator URL is: %s"), *CoordinatorURL)
+
+	// 127.0.0.1/Session
+	FString URL = FString::Printf(TEXT("%s/Session"), *CoordinatorURL);
+	Request->SetURL(URL);
+
+	// post means you are requesting something to be created.
+	Request->SetVerb("POST");
+
+	Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
+
+	// Json???? Java Script Object Notation
+	TSharedPtr<FJsonObject> JsonObject = MakeShareable<FJsonObject>(new FJsonObject);
+	JsonObject->SetStringField(SessionNameKey.ToString(), FGuid::NewGuid().ToString());
+	JsonObject->SetStringField(SessionSearchIDKey.ToString(), SessionSearchId.ToString());
+
+	FString RequestBody;
+	TSharedRef<TJsonWriter<>> Writter = TJsonWriterFactory<>::Create(&RequestBody);
+	FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writter);
+
+	Request->SetContentAsString(RequestBody);
+
+	Request->OnProcessRequestComplete().BindUObject(this, &UCGameInstance::SessionCreationRequestCompleted, SessionSearchId);
+	if (!Request->ProcessRequest())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Session Creation Request Failed Right away!"))
+	}
+}
+
+void UCGameInstance::SessionCreationRequestCompleted(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bProcessedSuccessfully, FGuid SessionSearchId)
+{
+	if (bProcessedSuccessfully && Response.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Session Creation Request Successfully!"))
+		int32 ResponseCode = Response->GetResponseCode();
+		if (ResponseCode == 200)
+		{
+			FString ResponseStr = Response->GetContentAsString();
+			TSharedPtr<FJsonObject> JsonObject;
+			TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(ResponseStr);
+
+			int32 Port = 0;
+			if (FJsonSerializer::Deserialize(Reader, JsonObject) && JsonObject.IsValid())
+			{
+				Port = JsonObject->GetIntegerField(*(SessionPortKey.ToString()));
+				UE_LOG(LogTemp, Warning, TEXT("Created Sesison With Port: %d"), Port)
+			}
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Session Creation Request Failed!"))
+	}
 }
 
 void UCGameInstance::TryFindAndJoinSession()
@@ -73,6 +130,18 @@ void UCGameInstance::ClientLoginCompleted(int LocalPlayerNumber, bool bWasSucces
 	}
 
 	OnAuthLoginCompletedDelegate.Broadcast(bWasSuccessful, "", ErrorMsg);
+}
+
+FString UCGameInstance::GetCoordinatorURL() const
+{
+	FString CoordinatorURL = GetCommandlineArgAsString(COORDINATOR_URL_KEY);
+	if (CoordinatorURL != "")
+	{
+		return CoordinatorURL;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Can't find command coordiantor url arg, using default one: %s"), *(DEFAULT_COORDINATOR_URL))
+	return DEFAULT_COORDINATOR_URL;
 }
 
 
@@ -144,12 +213,13 @@ FOnlineSessionSettings UCGameInstance::GenerateSessionSetting(const FName& Sessi
 {
 	FOnlineSessionSettings OnlineSessionSettings{};
 	OnlineSessionSettings.bIsLANMatch = false;
-	OnlineSessionSettings.NumPrivateConnections = 10;
+	OnlineSessionSettings.NumPublicConnections = 10;
 	OnlineSessionSettings.bShouldAdvertise = true;
 	OnlineSessionSettings.bUsesPresence = false;
 	OnlineSessionSettings.bAllowJoinViaPresence = false;
 	OnlineSessionSettings.bAllowJoinViaPresenceFriendsOnly = false;
 	OnlineSessionSettings.bAllowInvites = true;
+	OnlineSessionSettings.bAllowJoinInProgress = true;
 	OnlineSessionSettings.bUseLobbiesIfAvailable = false;
 	OnlineSessionSettings.bUseLobbiesVoiceChatIfAvailable = false;
 	OnlineSessionSettings.bUsesStats = true;
