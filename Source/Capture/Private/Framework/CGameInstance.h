@@ -97,6 +97,11 @@ private:
 
 	void JoinSessionCompleted(FName SessionName, EOnJoinSessionCompleteResult::Type JoinResult, int Port);
 
+	FString GetTestingURL() const;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Commandline Args")
+	FName TESTING_URL_KEY = "TESTING_URL";
+
 
 	//-----------------------------------------//
 	//          Online Interfaces              // 
