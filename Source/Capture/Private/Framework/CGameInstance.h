@@ -75,6 +75,26 @@ private:
 
 	void SessionCreationRequestCompleted(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bProcessedSuccessfully, FGuid SessionSearchId);
 
+	void StartFindingAndJoinSession(FGuid SessionSearchID = FGuid{});
+
+	FTimerHandle FindSessionTimerHandle;
+	FTimerHandle FindSessionTimeoutTimerHandle;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Session Search")
+	float SessionSearchInterval = 1.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Session Search")
+	float SessionSearchTimeoutDuration = 30.f;
+
+	void FindAndJoinSession(FGuid SessionSearchID);
+	void StopSessionSearches();
+
+	TSharedPtr<FOnlineSessionSearch> SessionSearch;
+
+	void FindSessionCompleted(bool bWasSuccessful);
+
+	void JoinSessionWithSearchResult(const FOnlineSessionSearchResult& SessionSearchResult);
+
 
 	//-----------------------------------------//
 	//          Online Interfaces              // 
