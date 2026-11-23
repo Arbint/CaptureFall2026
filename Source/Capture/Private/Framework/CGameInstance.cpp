@@ -300,6 +300,7 @@ void UCGameInstance::WaitPlayerJoinTimeoutReached()
 
 void UCGameInstance::FindAndJoinSession(FGuid SessionSearchID)
 {
+	UE_LOG(LogTemp, Warning, TEXT("---- Retry to find and joint session with id: %s"), *SessionSearchID.ToString())
 	if (IOnlineSessionPtr SessionPtr = GetSessionInterface())
 	{
 		SessionSearch = MakeShareable(new FOnlineSessionSearch);
@@ -351,6 +352,36 @@ void UCGameInstance::FindSessionCompleted(bool bWasSuccessful)
 void UCGameInstance::JoinSessionWithSearchResult(const FOnlineSessionSearchResult& SessionSearchResult)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Join Sesion With search result!"))
+	IOnlineSessionPtr SessionPtr = GetSessionInterface(); 
+
+	if (SessionPtr)
+	{
+		FString SessionName = "";
+		SessionSearchResult.Session.SessionSettings.Get<FString>(SessionNameKey, SessionName);
+			
+		const FOnlineSessionSetting* PortSetting = SessionSearchResult.Session.SessionSettings.Settings.Find(SessionPortKey);
+		int64 Port = 0;
+		PortSetting->Data.GetValue(Port);
+
+		UE_LOG(LogTemp, Warning, TEXT("Tring to joint session: %s, at port: %d"), *(SessionName), (int)Port)
+		SessionPtr->OnJoinSessionCompleteDelegates.RemoveAll(this);
+		SessionPtr->OnJoinSessionCompleteDelegates.AddUObject(this, &UCGameInstance::JoinSessionCompleted, (int)Port);
+		if (!SessionPtr->JoinSession(0, FName(SessionName), SessionSearchResult))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Joining Session Failed Right Away!"))
+			SessionPtr->OnJoinSessionCompleteDelegates.RemoveAll(this);
+		}
+	}
+}
+
+void UCGameInstance::JoinSessionCompleted(FName SessionName, EOnJoinSessionCompleteResult::Type JoinResult, int Port)
+{
+	IOnlineSessionPtr SessionPtr = GetSessionInterface();
+	if (SessionPtr && JoinResult == EOnJoinSessionCompleteResult::Success)
+	{
+		StopSessionSearches();
+		UE_LOG(LogTemp, Warning, TEXT("Join Session Successful! with port: %d"), Port)
+	}
 }
 
 IOnlineSessionPtr UCGameInstance::GetSessionInterface() const

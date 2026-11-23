@@ -95,6 +95,8 @@ private:
 
 	void JoinSessionWithSearchResult(const FOnlineSessionSearchResult& SessionSearchResult);
 
+	void JoinSessionCompleted(FName SessionName, EOnJoinSessionCompleteResult::Type JoinResult, int Port);
+
 
 	//-----------------------------------------//
 	//          Online Interfaces              // 
